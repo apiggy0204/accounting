@@ -19,22 +19,21 @@ def gettext(ftp, filename, outfile=None):
     # use a lambda to add newlines to the lines read from the server
     ftp.retrlines("RETR " + filename, lambda s, w=outfile.write: w(s+"\n"))    
 
-#login the ftp
-ftp = FTP('ftp.sec.gov')
-ftp.login()
+def getIndexFiles(start_year, start_qtr):
+    #login the ftp
+    ftp = FTP('ftp.sec.gov')
+    ftp.login()
+    
+    for year in range(2005, 2013):    
+        for QTR in range(1, 5):            
+            if (year==start_year and QTR>=start_qtr) or year > start_year:
+                source_path = "edgar/full-index/" + str(year) + "/QTR" + str(QTR) + "/form.idx"
+                dest_path   = "../../res/" + str(year) + "_" + str(QTR) + ".idx"
+                print source_path
+                print dest_path     
+                dest = open(dest_path, "wb")
+                getbinary(ftp, source_path , dest)
+                
+    ftp.close()
 
-for year in range(2005, 2012):    
-    for QTR in range(1, 5):
-        source_path = "edgar/full-index/" + str(year) + "/QTR" + str(QTR) + "/form.idx"
-        dest_path   = "../../res/form" + str(year) + "_" + str(QTR) + ".idx"
-        print source_path
-        print dest_path     
-        dest = open(dest_path, "wb")
-        getbinary(ftp, source_path , dest)
-        
-ftp.close()        
-
-#fetch content using ftp protocol
-#FTP.storbinary(command, file[, blocksize, callback, rest])
-#print ftp.sendcmd("cd edgar/full-index/")        
-#ftp.retrbinary( "RETR edgar/full-index/2010/QTR1/form.idx", "../../res/2010/form1.idx")
+getIndexFiles(2005, 1)
